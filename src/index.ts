@@ -112,3 +112,8 @@ function walkDir(dir: string, callback: (x: string) => void) {
             : callback(path.join(dir, f))
     })
 }
+
+/** Helper function to time code execution */
+function snapshot(now: number = Date.now()) {
+    return () => (Date.now() - now).toFixed(2) + 'ms'
+}
