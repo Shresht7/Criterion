@@ -74,7 +74,9 @@ export function suite(name: string) {
 /** File-extensions to look for tests */
 const fileExtensions = [
     '.test.js',
-    '.test.ts'
+    '.spec.js',
+    '.test.ts',
+    '.spec.ts',
 ]
 
 /** Script's Main Function */
