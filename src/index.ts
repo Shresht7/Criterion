@@ -2,74 +2,94 @@
 import * as fs from 'fs'
 import * as path from 'path'
 
-//  ==================
-//  BEAR MINIMUM TESTS
-//  ==================
+//  Type Definitions
+type test = { name: string, callback: () => void }
 
-type Test = { name: string, callback: () => void }
+/** Test Suite */
+class Suite {
+    private readonly name: string = ''
 
-//  --------------------
-const tests: Test[] = []
-let successes: number = 0
-//  --------------------
+    private successes = 0
+    private failures = 0
+    private total = 0
 
-/**
- * Pushes the test function onto the stack
- * @param name Test description
- * @param callback Test callback function
- */
-function _test(name: string, callback: () => void) {
-    tests.push({ name, callback })
-}
+    /** Collection of all tests in this suite */
+    tests: test[] = []
 
-//  Aliases for the _test function
-export const test = _test
-export const it = _test
+    constructor(name: string) {
+        this.name = name
+    }
 
-/**
- * Runs the given test and reports success or failure
- * @param test The test to run
- */
-function run(test: Test) {
-    //  Try to execute the tests
-    try {
+    /**
+     * Registers a test to this suite
+     * @param name Test description or name
+     * @param callback Callback function to test
+     */
+    test = (name: string, callback: () => void) => { this.tests.push({ name, callback }); return this }
+    spec = this.test
+    it = this.test
 
-        test.callback()
-        //  If the callback doesn't throw an exception, then return success
-        console.log(`✅ ${test.name}`)
+    /** Runs all tests in this suite */
+    run = () => {
 
-        successes++
+        console.log('Suite:', this.name)
 
-    } catch (_e) {
+        this.tests.forEach(test => {
+            //  Try to run the test
+            try {
+                test.callback()
+                //  If the callback doesn't throw an exception, report success
+                console.log(`✅ ${test.name}`)
+                this.successes++
+            } catch (e) {
+                const error = e as Error
+                //  If exception then report failure and log the error stack
+                console.error(`❌ ${test.name}`)
+                console.error(error.stack)
+                this.failures++
+            } finally {
+                this.total++
+            }
+        })
 
-        const e = _e as Error
-        //  If exception, return failure
-        console.error(`❌ ${test.name}`)
-        //  Log error stack
-        console.error(e.stack)
-
+        console.log(`${this.successes} tests passed (${this.failures} failed) out of ${this.total} total`)
     }
 }
 
-//  ----
+//  ====
 //  MAIN
-//  ----
+//  ====
 
+//  ---------------------------------
+const MAIN = new Map<string, Suite>()
+//  ---------------------------------
+
+/** Register a new test suite */
+export function suite(name: string) {
+    const _suite = new Suite(name)
+    MAIN.set(name, _suite)
+    return _suite
+}
+
+/** File-extensions to look for tests */
+const fileExtensions = [
+    '.test.js',
+    '.test.ts'
+]
+
+/** Script's Main Function */
 function main() {
-
-    //  Recursively walk the current directory and require all .test.js files
-    walkDir(process.cwd(), async (x) => {
-        if (x.includes('.test.js')) {
+    //  Walk over the current directory and require all test files
+    walkDir(process.cwd(), (x) => {
+        if (fileExtensions.some(ext => x.includes(ext))) {
             require(x)
         }
     })
 
-    //  Run all tests
-    tests.forEach(run)
-
-    //  Display Results
-    console.log(`${successes} tests succeeded ✅ out of ${tests.length} total`)
-
+    //  Iterate over the map and run all test suites
+    for (const [_, suite] of MAIN) {
+        suite.run()
+    }
 }
 
 main()
