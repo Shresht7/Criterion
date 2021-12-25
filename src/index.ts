@@ -2,6 +2,10 @@
 import * as fs from 'fs'
 import * as path from 'path'
 
+//  CLI-Tools
+import { ansi } from 'cli-tools'
+const { bold, inverse, green, red, white } = ansi
+
 //  Type Definitions
 type test = { name: string, callback: () => void }
 
@@ -32,14 +36,14 @@ class Suite {
     /** Runs all tests in this suite */
     run = () => {
 
-        console.log('Suite:', this.name)
+        console.log('\n' + inverse(bold(`  ${this.name}  `)) + '\n')
 
         this.tests.forEach(test => {
             //  Try to run the test
             try {
                 test.callback()
                 //  If the callback doesn't throw an exception, report success
-                console.log(`✅ ${test.name}`)
+                console.log(`  ✅ ${test.name}`)
                 this.successes++
             } catch (e) {
                 const error = e as Error
@@ -52,7 +56,8 @@ class Suite {
             }
         })
 
-        console.log(`${this.successes} tests passed (${this.failures} failed) out of ${this.total} total`)
+        console.log(`\n${bold(this.successes.toString())} ${green('passed')} out of ${bold(this.total.toString())} total\n`)
+        this.failures && console.log(`(${bold(this.failures.toString())} ${red('failed')})`)
     }
 }
 
