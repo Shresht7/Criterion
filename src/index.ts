@@ -1,6 +1,7 @@
 //  Library
 import * as fs from 'fs'
 import * as path from 'path'
+import * as assert from 'assert'
 import { bold, inverse, green, red, pad } from './ansi'
 
 //  Type Definitions
@@ -56,12 +57,70 @@ class Suite {
         let results = ''
         results += bold(this.successes) + ' '
         results += green('passed')
-        results += this.failures ? `(${bold(this.failures)} ${red('failed ')})` : ' '
+        results += this.failures ? ` (${bold(this.failures)} ${red('failed')}) ` : ' '
         results += 'out of '
         results += bold(this.total) + ' '
         results += 'total'
         console.log('\n' + results + '\n')
     }
+}
+
+//  ============
+//  EXPECTATIONS
+//  ============
+
+/**
+ * Chainable wrapper around Node's assertion library
+ * @param actual Actual value to test
+ */
+export function expect<T>(actual: T) {
+
+    let matchers = {
+        toDeepEqual: <U>(expected: U) => {
+            assert.deepEqual(actual, expected)
+            return matchers
+        },
+        toEqual: <U>(expected: U) => {
+            assert.equal(actual, expected)
+            return matchers
+        },
+        toBeOkay: () => {
+            assert.ok(actual)
+            return matchers
+        },
+        toBeOfType: (type: 'string' | 'number' | 'boolean' | 'function' | 'bigint' | 'symbol' | 'undefined' | 'object') => {
+            assert.ok(typeof actual === type)
+            return matchers
+        },
+        toMatch: (expected: RegExp) => {
+            if (typeof actual !== 'string') { assert.fail('Not a string') }
+            assert.match(actual, expected)
+            return matchers
+        },
+        not: {
+            toDeepEqual: <U>(expected: U) => {
+                assert.notDeepEqual(actual, expected)
+                return matchers
+            },
+            toEqual: <U>(expected: U) => {
+                assert.notEqual(actual, expected)
+                return matchers
+            },
+            toBeOkay: () => {
+                assert.ok(!actual)
+                return matchers
+            },
+            toMatch: (expected: RegExp) => {
+                if (typeof actual !== 'string') { assert.fail('Not a string') }
+                assert.doesNotMatch(actual, expected)
+                return matchers
+            }
+        }
+    }
+
+    //TODO: Implement functions and promise matchers
+
+    return matchers
 }
 
 //  ====
