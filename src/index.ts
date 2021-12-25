@@ -1,7 +1,7 @@
 //  Library
 import * as fs from 'fs'
 import * as path from 'path'
-import { bold, inverse, green, red } from './ansi'
+import { bold, inverse, green, red, pad } from './ansi'
 
 //  Type Definitions
 type test = { name: string, callback: () => void }
@@ -33,7 +33,7 @@ class Suite {
     /** Runs all tests in this suite */
     run = () => {
 
-        console.log('\n' + inverse(bold(`  ${this.name}  `)) + '\n')
+        console.log('\n' + inverse(bold(pad(this.name, 3))) + '\n')
 
         this.tests.forEach(test => {
             //  Try to run the test
@@ -53,8 +53,14 @@ class Suite {
             }
         })
 
-        console.log(`\n${bold(this.successes)} ${green('passed')} out of ${bold(this.total)} total\n`)
-        this.failures && console.log(`(${bold(this.failures)} ${red('failed')})`)
+        let results = ''
+        results += bold(this.successes) + ' '
+        results += green('passed')
+        results += this.failures ? `(${bold(this.failures)} ${red('failed ')})` : ' '
+        results += 'out of '
+        results += bold(this.total) + ' '
+        results += 'total'
+        console.log('\n' + results + '\n')
     }
 }
 
