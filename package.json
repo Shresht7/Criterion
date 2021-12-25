@@ -2,8 +2,10 @@
   "name": "criterion",
   "version": "1.0.0",
   "description": "A bare minimum test framework",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
+    "start": "npx ts-node src/index.ts",
+    "test": "npm start",
     "dev": "tsc -w",
     "build": "tsc",
     "clean": "npx rimraf lib"
