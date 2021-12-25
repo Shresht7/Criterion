@@ -1,10 +1,7 @@
 //  Library
 import * as fs from 'fs'
 import * as path from 'path'
-
-//  CLI-Tools
-import { ansi } from 'cli-tools'
-const { bold, inverse, green, red, white } = ansi
+import { bold, inverse, green, red } from './ansi'
 
 //  Type Definitions
 type test = { name: string, callback: () => void }
@@ -56,8 +53,8 @@ class Suite {
             }
         })
 
-        console.log(`\n${bold(this.successes.toString())} ${green('passed')} out of ${bold(this.total.toString())} total\n`)
-        this.failures && console.log(`(${bold(this.failures.toString())} ${red('failed')})`)
+        console.log(`\n${bold(this.successes)} ${green('passed')} out of ${bold(this.total)} total\n`)
+        this.failures && console.log(`(${bold(this.failures)} ${red('failed')})`)
     }
 }
 
