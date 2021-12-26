@@ -35,22 +35,37 @@ function walkDir(dir: string, callback: (x: string) => void) {
 const ESC = '\u001b'
 const RESET = `${ESC}[0m`
 
-/** Helper function to wrap the given string with the given ansi code tuple */
+/**
+ * Helper function to wrap the given string with the given ansi code tuple
+ * @param str Text to wrap ANSI code around
+ * @param code Tuple representing the ANSI start and end codes [start, end]
+ */
 function wrap(str: string, code: [string, string]) { return `${code[0]}${str}${code[1]}` }
 
 /** ANSI Code Utilities */
 const ansi = {
+    /** Wraps the text in ANSI bold codes */
     bold: (str: string) => wrap(str, [`${ESC}[1m`, `${ESC}[22m`]),
+    /** Wraps the text in ANSI inverse codes */
     inverse: (str: string) => wrap(str, [`${ESC}[7m`, `${ESC}[27m`]),
-    pad: (str: string, n: number = 1) => wrap(str, [' '.repeat(n), ' '.repeat(n)]),
-    margin: (str: string, n: number = 1) => wrap(str, ['\n'.repeat(n), '\n'.repeat(n)]),
+    /** Returns a curried function that inturn wraps a text in n whitespaces */
+    pad: (n: number = 1) => (str: string) => wrap(str, [' '.repeat(n), ' '.repeat(n)]),
+    /** Returns a curried function that inturn wraps a text in n newlines */
+    margin: (n: number = 1) => (str: string) => wrap(str, ['\n'.repeat(n), '\n'.repeat(n)]),
+    /** Wraps the text in ANSI green codes */
     green: (str: string) => wrap(str, [`${ESC}[32m`, `${ESC}[39m`]),
+    /** Wraps the text in ANSI red codes */
     red: (str: string) => wrap(str, [`${ESC}[31m`, `${ESC}[39m`]),
 }
 
 /** Function composition utility */
 function compose(...fns: Function[]) {
-    return (str: string) => fns.reduceRight((acc, currFn) => currFn(acc), str)
+    return (str: string) => fns.reduceRight((acc, currFn) => {
+        //  If currFn is a curried function (like pad and margin in this case) then pass in the default of 1 and pipe forward
+        if (typeof currFn(1) === 'function') { currFn = currFn(1) }
+        //  Return the accumulated result
+        return currFn(acc)
+    }, str)
 }
 
 //  ========
@@ -74,7 +89,7 @@ class Criteria {
 
     constructor(name: string) {
         this.name = name
-        this.header = compose(ansi.margin, ansi.bold, ansi.inverse, ansi.pad)(this.name)
+        this.header = compose(ansi.margin, ansi.bold, ansi.inverse, ansi.pad(3))(this.name)
     }
 
     /**
@@ -132,7 +147,7 @@ class Criteria {
         results += ansi.bold(this.total.toString()) + ' '
         results += 'total'
         results += RESET
-        results = ansi.margin(results)
+        results = ansi.margin(1)(results)
         return results
     }
 }
