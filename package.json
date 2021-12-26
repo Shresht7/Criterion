@@ -3,15 +3,20 @@
   "version": "1.0.0",
   "description": "A bare minimum test framework",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "start": "npx ts-node src/index.ts",
-    "test": "npm start",
-    "dev": "tsc -w",
-    "build": "tsc",
+    "start": "node lib/index.js",
+    "test": "npx ts-node src/index.ts",
+    "dev": "tsc --watch",
+    "build": "npm run clean && tsc",
     "clean": "npx rimraf lib"
   },
   "author": "Shresht7",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shresht7/Criteria.git"
+  },
   "devDependencies": {
     "@types/node": "^17.0.4",
     "typescript": "^4.5.4"
