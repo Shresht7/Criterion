@@ -2,15 +2,23 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as assert from 'assert'
-import { bold, inverse, green, red, pad } from './ansi'
 
 //  Type Definitions
-type test = { name: string, callback: () => void }
+type callbackFn = () => void
+type test = { name: string, callback: callbackFn }
+
+//  ========
+//  CRITERIA
+//  ========
 
 /** Test Suite */
-class Suite {
-    private readonly name: string = ''
+class Criteria {
 
+    /** Name of the test suite */
+    private readonly name: string = ''
+    private readonly header: string = ''
+
+    //  Results
     private successes = 0
     private failures = 0
     private total = 0
@@ -20,21 +28,32 @@ class Suite {
 
     constructor(name: string) {
         this.name = name
+        this.header = `   \u001b[1m\u001b[7m${this.name}\u001b[21m\u001b[27m   `
     }
 
     /**
-     * Registers a test to this suite
-     * @param name Test description or name
-     * @param callback Callback function to test
+     * Register a test to this suite
+     * @param name Test description/name
+     * @param callback Callback function
      */
     test = (name: string, callback: () => void) => { this.tests.push({ name, callback }); return this }
+    /**
+     * Register a test to this suite
+     * @param name Test description/name
+     * @param callback Callback function
+     */
     spec = this.test
+    /**
+     * Register a test to this suite
+     * @param name Test description/name
+     * @param callback Callback function
+     */
     it = this.test
 
     /** Runs all tests in this suite */
     run = () => {
 
-        console.log('\n' + inverse(bold(pad(this.name, 3))) + '\n')
+        console.log(this.header)
 
         this.tests.forEach(test => {
             //  Try to run the test
@@ -54,20 +73,25 @@ class Suite {
             }
         })
 
+        console.log('\n' + this.getResults() + '\n')
+    }
+
+    /** Returns a formatted string that shows the number of test successes, failures and total */
+    getResults = () => {
         let results = ''
-        results += bold(this.successes) + ' '
-        results += green('passed')
-        results += this.failures ? ` (${bold(this.failures)} ${red('failed')}) ` : ' '
+        results += `\u001b[1m${this.successes}\u001b[21m `
+        results += `\u001b[32mpassed\u001b[39m`
+        results += this.failures ? ` (\u001b[1m${this.failures}\u001b[21m \u001b[31mfailed\u001b[39m) ` : ' '
         results += 'out of '
-        results += bold(this.total) + ' '
+        results += `\u001b[1m${this.total}\u001b21m `
         results += 'total'
-        console.log('\n' + results + '\n')
+        return results
     }
 }
 
-//  ============
-//  EXPECTATIONS
-//  ============
+//  ===========
+//  EXPECTATION
+//  ===========
 
 /**
  * Chainable wrapper around Node's assertion library
@@ -127,18 +151,19 @@ export function expect<T>(actual: T) {
 //  MAIN
 //  ====
 
-//  ---------------------------------
-const MAIN = new Map<string, Suite>()
-//  ---------------------------------
+//  ------------------------------------
+const MAIN = new Map<string, Criteria>()
+//  ------------------------------------
 
 /** Register a new test suite */
-export function suite(name: string) {
-    const _suite = new Suite(name)
-    MAIN.set(name, _suite)
-    return _suite
+export function criteria(name: string) {
+    const _criteria = new Criteria(name)
+    MAIN.set(name, _criteria)
+    return _criteria
 }
 
 /** File-extensions to look for tests */
+//TODO: Replace with RegEx matcher
 const fileExtensions = [
     '.test.js',
     '.spec.js',
@@ -156,8 +181,8 @@ function main() {
     })
 
     //  Iterate over the map and run all test suites
-    for (const [_, suite] of MAIN) {
-        suite.run()
+    for (const [_, criteria] of MAIN) {
+        criteria.run()
     }
 }
 
@@ -180,9 +205,4 @@ function walkDir(dir: string, callback: (x: string) => void) {
             ? walkDir(dirPath, callback)
             : callback(path.join(dir, f))
     })
-}
-
-/** Helper function to time code execution */
-function snapshot(now: number = Date.now()) {
-    return () => (Date.now() - now).toFixed(2) + 'ms'
 }
