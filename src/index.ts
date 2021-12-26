@@ -183,50 +183,6 @@ class Criteria {
     showResult = () => console.log(this.getResults())
 }
 
-//  ====
-//  MAIN
-//  ====
-
-//  -------------------------------------
-const CRITERIA = new Criteria('CRITERIA')
-//  -------------------------------------
-
-/** Register a new test suite */
-export function criteria(name: string) {
-    return CRITERIA.criteria(name)
-}
-
-/** Register new test */
-export function test(name: string, callback: () => void) {
-    return CRITERIA.test(name, callback)
-}
-
-/** File-extensions to look for tests */
-const fileExtension = /\.(test|spec)\.ts$/
-//TODO: Eliminate redundant test runs when both .ts and .js files are preset (Ignore files using .gitignore?)
-// const fileExtension = /\.(test|spec)\.(js|ts)$/
-
-/** Script's Main Function */
-function main() {
-    //  Walk over the current directory and require all test files
-    const done: string[] = []
-    walkDir(process.cwd(), (x) => {
-        if (fileExtension.test(x)) {
-            const fileName = path.basename(x).replace(fileExtension, '')
-            if (!fileName || done.includes(fileName)) { return }    //  If a test with the same fileName is already done then skip it
-            done.push(fileName)
-            console.log('loading: ' + x.replace(fileName, ansi.bold(fileName)))
-            require(x)
-        }
-    })
-
-    //  Iterate over the map and run all test suites
-    CRITERIA.run()
-    CRITERIA.showResult()
-}
-
-main()
-
 //  ===========
 //  EXPECTATION
 //  ===========
@@ -284,3 +240,47 @@ export function expect<T>(actual: T) {
 
     return matchers
 }
+
+//  ====
+//  MAIN
+//  ====
+
+//  -------------------------------------
+const CRITERIA = new Criteria('CRITERIA')
+//  -------------------------------------
+
+/** Register a new test suite */
+export function criteria(name: string) {
+    return CRITERIA.criteria(name)
+}
+
+/** Register new test */
+export function test(name: string, callback: () => void) {
+    return CRITERIA.test(name, callback)
+}
+
+/** File-extensions to look for tests */
+const fileExtension = /\.(test|spec)\.ts$/
+//TODO: Eliminate redundant test runs when both .ts and .js files are preset (Ignore files using .gitignore?)
+// const fileExtension = /\.(test|spec)\.(js|ts)$/
+
+/** Script's Main Function */
+function main() {
+    //  Walk over the current directory and require all test files
+    const done: string[] = []
+    walkDir(process.cwd(), (x) => {
+        if (fileExtension.test(x)) {
+            const fileName = path.basename(x).replace(fileExtension, '')
+            if (!fileName || done.includes(fileName)) { return }    //  If a test with the same fileName is already done then skip it
+            done.push(fileName)
+            console.log('loading: ' + x.replace(fileName, ansi.bold(fileName)))
+            require(x)
+        }
+    })
+
+    //  Iterate over the map and run all test suites
+    CRITERIA.run()
+    CRITERIA.showResult()
+}
+
+main()
