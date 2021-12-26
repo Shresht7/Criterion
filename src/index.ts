@@ -211,14 +211,20 @@ export function criteria(name: string) {
 }
 
 /** File-extensions to look for tests */
-const fileExtension = /\.(test|spec)\.(ts|js)$/
+const fileExtension = /\.(test|spec)\.ts$/
+//TODO: Eliminate redundant test runs when both .ts and .js files are preset (Ignore files using .gitignore?)
+// const fileExtension = /\.(test|spec)\.(js|ts)$/
 
 /** Script's Main Function */
 function main() {
     //  Walk over the current directory and require all test files
+    const done: string[] = []
     walkDir(process.cwd(), (x) => {
         if (fileExtension.test(x)) {
-            console.log('loading ' + x)
+            const fileName = path.basename(x).replace(fileExtension, '')
+            if (!fileName || done.includes(fileName)) { return }    //  If a test with the same fileName is already done then skip it
+            done.push(fileName)
+            console.log('loading: ' + x.replace(fileName, ansi.bold(fileName)))
             require(x)
         }
     })
