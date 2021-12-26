@@ -85,10 +85,22 @@ class Criteria {
 
     /** Collection of all tests in this suite */
     tests: test[] = []
+    subcriteria: Criteria[] = []
 
     constructor(name: string) {
         this.name = name
         this.header = compose(ansi.margin, ansi.bold, ansi.inverse, ansi.pad(3))(this.name)
+    }
+
+    /**
+     * Creates a new sub-criteria
+     * @param name Criteria name or description
+     * @returns SubCriteria
+     */
+    criteria = (name: string) => {
+        const subCriteria = new Criteria(name)
+        this.subcriteria.push(subCriteria)
+        return subCriteria
     }
 
     /**
@@ -113,27 +125,34 @@ class Criteria {
     /** Runs all tests in this suite */
     run = () => {
 
-        console.log(this.header)
+        if (this.tests?.length) {
 
-        this.tests.forEach(test => {
-            //  Try to run the test
-            try {
-                test.callback()
-                //  If the callback doesn't throw an exception, report success
-                console.log(`  ✅ ${test.name}`)
-                this.successes++
-            } catch (e) {
-                const error = e as Error
-                //  If exception then report failure and log the error stack
-                console.error(`❌ ${test.name}`)
-                console.error(error.stack)
-                this.failures++
-            } finally {
-                this.total++
-            }
-        })
+            console.log(this.header)
 
-        console.log(this.getResults())
+            this.tests.forEach(test => {
+                //  Try to run the test
+                try {
+                    test.callback()
+                    //  If the callback doesn't throw an exception, report success
+                    console.log(`  ✅ ${test.name}`)
+                    this.successes++
+                } catch (e) {
+                    const error = e as Error
+                    //  If exception then report failure and log the error stack
+                    console.error(`❌ ${test.name}`)
+                    console.error(error.stack)
+                    this.failures++
+                } finally {
+                    this.total++
+                }
+            })
+
+            console.log(this.getResults())
+
+        }
+
+        //  Run all sub-criteria
+        this.subcriteria.forEach(subCriteria => subCriteria.run())
     }
 
     /** Returns a formatted string that shows the number of test successes, failures and total */
@@ -213,15 +232,18 @@ export function expect<T>(actual: T) {
 //  MAIN
 //  ====
 
-//  ------------------------------------
-const MAIN = new Map<string, Criteria>()
-//  ------------------------------------
+//  -------------------------------------
+const CRITERIA = new Criteria('CRITERIA')
+//  -------------------------------------
 
 /** Register a new test suite */
 export function criteria(name: string) {
-    const _criteria = new Criteria(name)
-    MAIN.set(name, _criteria)
-    return _criteria
+    return CRITERIA.criteria(name)
+}
+
+/** Register new test */
+export function test(name: string, callback: () => void) {
+    return CRITERIA.test(name, callback)
 }
 
 /** File-extensions to look for tests */
@@ -244,9 +266,7 @@ function main() {
     })
 
     //  Iterate over the map and run all test suites
-    for (const [_, criteria] of MAIN) {
-        criteria.run()
-    }
+    CRITERIA.run()
 }
 
 main()
