@@ -7,6 +7,52 @@ import * as assert from 'assert'
 type callbackFn = () => void
 type test = { name: string, callback: callbackFn }
 
+//  ================
+//  HELPER FUNCTIONS
+//  ================
+
+//  WALK DIRECTORY
+//  ==============
+
+/**
+ * Walks the provided path and executes the callback function
+ * @param dir Path to directory
+ * @param callback Callback function to execute for every entry
+ */
+function walkDir(dir: string, callback: (x: string) => void) {
+    fs.readdirSync(dir).forEach(f => {
+        const dirPath = path.join(dir, f)
+        const isDirectory = fs.statSync(dirPath).isDirectory()
+        isDirectory
+            ? walkDir(dirPath, callback)
+            : callback(path.join(dir, f))
+    })
+}
+
+//  ANSI CODES
+//  ==========
+
+const ESC = '\u001b'
+const RESET = `${ESC}[0m`
+
+/** Helper function to wrap the given string with the given ansi code tuple */
+function wrap(str: string, code: [string, string]) { return `${code[0]}${str}${code[1]}` }
+
+/** ANSI Code Utilities */
+const ansi = {
+    bold: (str: string) => wrap(str, [`${ESC}[1m`, `${ESC}[22m`]),
+    inverse: (str: string) => wrap(str, [`${ESC}[7m`, `${ESC}[27m`]),
+    pad: (str: string, n: number = 1) => wrap(str, [' '.repeat(n), ' '.repeat(n)]),
+    margin: (str: string, n: number = 1) => wrap(str, ['\n'.repeat(n), '\n'.repeat(n)]),
+    green: (str: string) => wrap(str, [`${ESC}[32m`, `${ESC}[39m`]),
+    red: (str: string) => wrap(str, [`${ESC}[31m`, `${ESC}[39m`]),
+}
+
+/** Function composition utility */
+function compose(...fns: Function[]) {
+    return (str: string) => fns.reduceRight((acc, currFn) => currFn(acc), str)
+}
+
 //  ========
 //  CRITERIA
 //  ========
@@ -28,7 +74,7 @@ class Criteria {
 
     constructor(name: string) {
         this.name = name
-        this.header = `   \u001b[1m\u001b[7m${this.name}\u001b[21m\u001b[27m   `
+        this.header = compose(ansi.margin, ansi.bold, ansi.inverse, ansi.pad)(this.name)
     }
 
     /**
@@ -73,18 +119,20 @@ class Criteria {
             }
         })
 
-        console.log('\n' + this.getResults() + '\n')
+        console.log(this.getResults())
     }
 
     /** Returns a formatted string that shows the number of test successes, failures and total */
     getResults = () => {
         let results = ''
-        results += `\u001b[1m${this.successes}\u001b[21m `
-        results += `\u001b[32mpassed\u001b[39m`
-        results += this.failures ? ` (\u001b[1m${this.failures}\u001b[21m \u001b[31mfailed\u001b[39m) ` : ' '
+        results += ansi.bold(this.successes.toString()) + ' '
+        results += ansi.green('passed')
+        results += this.failures ? `(${ansi.bold(this.failures.toString())} ${ansi.red('failed')})` : ' '
         results += 'out of '
-        results += `\u001b[1m${this.total}\u001b21m `
+        results += ansi.bold(this.total.toString()) + ' '
         results += 'total'
+        results += RESET
+        results = ansi.margin(results)
         return results
     }
 }
@@ -182,22 +230,3 @@ function main() {
 }
 
 main()
-
-//  ================
-//  HELPER FUNCTIONS
-//  ================
-
-/**
- * Walks the provided path and executes the callback function
- * @param dir Path to directory
- * @param callback Callback function to execute for every entry
- */
-function walkDir(dir: string, callback: (x: string) => void) {
-    fs.readdirSync(dir).forEach(f => {
-        const dirPath = path.join(dir, f)
-        const isDirectory = fs.statSync(dirPath).isDirectory()
-        isDirectory
-            ? walkDir(dirPath, callback)
-            : callback(path.join(dir, f))
-    })
-}
