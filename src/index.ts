@@ -51,6 +51,8 @@ const ansi = {
     pad: (n: number = 1) => (str: string) => wrap(str, [' '.repeat(n), ' '.repeat(n)]),
     /** Returns a curried function that inturn wraps a text in n newlines */
     margin: (n: number = 1) => (str: string) => wrap(str, ['\n'.repeat(n), '\n'.repeat(n)]),
+    /** Returns a curried function that inturn indents the text by n times 4 spaces */
+    indent: (n: number = 0) => (str: string) => (n > 0 ? '    '.repeat(n) : '') + str,
     /** Wraps the text in ANSI green codes */
     green: (str: string) => wrap(str, [`${ESC}[32m`, `${ESC}[39m`]),
     /** Wraps the text in ANSI red codes */
@@ -77,6 +79,7 @@ class Criteria {
     /** Name of the test suite */
     private readonly name: string = ''
     private readonly header: string = ''
+    private readonly level: number = -1
 
     //  Results
     private successes = 0
@@ -87,9 +90,10 @@ class Criteria {
     tests: test[] = []
     subcriteria: Criteria[] = []
 
-    constructor(name: string) {
+    constructor(name: string, level: number = -1) {
         this.name = name
-        this.header = compose(ansi.margin, ansi.bold, ansi.inverse, ansi.pad(3))(this.name)
+        this.level = level
+        this.header = compose(ansi.margin, ansi.indent(this.level), ansi.bold, ansi.inverse, ansi.pad(3))(this.name)
     }
 
     /**
@@ -98,7 +102,7 @@ class Criteria {
      * @returns SubCriteria
      */
     criteria = (name: string) => {
-        const subCriteria = new Criteria(name)
+        const subCriteria = new Criteria(name, this.level + 1)
         this.subcriteria.push(subCriteria)
         return subCriteria
     }
@@ -134,12 +138,12 @@ class Criteria {
                 try {
                     test.callback()
                     //  If the callback doesn't throw an exception, report success
-                    console.log(`  ✅ ${test.name}`)
+                    console.log(ansi.indent(this.level)(`  ✅ ${test.name}`))
                     this.successes++
                 } catch (e) {
                     const error = e as Error
                     //  If exception then report failure and log the error stack
-                    console.error(`❌ ${test.name}`)
+                    console.error(ansi.indent(this.level)(` ❌ ${test.name}`))
                     console.error(error.stack)
                     this.failures++
                 } finally {
@@ -158,6 +162,7 @@ class Criteria {
     /** Returns a formatted string that shows the number of test successes, failures and total */
     getResults = () => {
         let results = ''
+        results += ansi.indent(this.level)(results)
         results += ansi.bold(this.successes.toString()) + ' '
         results += ansi.green('passed')
         results += this.failures ? `(${ansi.bold(this.failures.toString())} ${ansi.red('failed')})` : ' '
