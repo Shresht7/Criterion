@@ -4,8 +4,7 @@ import * as path from 'path'
 import * as assert from 'assert'
 
 //  Type Definitions
-type callbackFn = () => void
-type test = { name: string, callback: callbackFn }
+type test = { name: string, callback: () => void }
 
 //  ================
 //  HELPER FUNCTIONS
