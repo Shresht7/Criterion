@@ -90,6 +90,8 @@ class Criteria {
     tests: test[] = []
     subcriteria: Criteria[] = []
 
+    //TODO: Create setup and teardown functions
+
     constructor(name: string, level: number = -1) {
         this.name = name
         this.level = level
@@ -140,18 +142,21 @@ class Criteria {
                     //  If the callback doesn't throw an exception, report success
                     console.log(ansi.indent(this.level)(`  ✅ ${test.name}`))
                     this.successes++
+                    CRITERIA.successes++
                 } catch (e) {
                     const error = e as Error
                     //  If exception then report failure and log the error stack
                     console.error(ansi.indent(this.level)(` ❌ ${test.name}`))
                     console.error(error.stack)
                     this.failures++
+                    CRITERIA.failures++
                 } finally {
                     this.total++
+                    CRITERIA.total++
                 }
             })
 
-            console.log(this.getResults())
+            this.showResult()
 
         }
 
@@ -165,7 +170,7 @@ class Criteria {
         results += ansi.indent(this.level)(results)
         results += ansi.bold(this.successes.toString()) + ' '
         results += ansi.green('passed')
-        results += this.failures ? `(${ansi.bold(this.failures.toString())} ${ansi.red('failed')})` : ' '
+        results += this.failures ? ` (${ansi.bold(this.failures.toString())} ${ansi.red('failed')}) ` : ' '
         results += 'out of '
         results += ansi.bold(this.total.toString()) + ' '
         results += 'total'
@@ -173,6 +178,9 @@ class Criteria {
         results = ansi.margin(1)(results)
         return results
     }
+
+    /** Prints the results onto the screen */
+    showResult = () => console.log(this.getResults())
 }
 
 //  ====
@@ -214,6 +222,7 @@ function main() {
 
     //  Iterate over the map and run all test suites
     CRITERIA.run()
+    CRITERIA.showResult()
 }
 
 main()
