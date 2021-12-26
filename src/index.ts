@@ -163,19 +163,14 @@ export function criteria(name: string) {
 }
 
 /** File-extensions to look for tests */
-//TODO: Replace with RegEx matcher
-const fileExtensions = [
-    '.test.js',
-    '.spec.js',
-    '.test.ts',
-    '.spec.ts',
-]
+const fileExtension = /\.(test|spec)\.(ts|js)$/
 
 /** Script's Main Function */
 function main() {
     //  Walk over the current directory and require all test files
     walkDir(process.cwd(), (x) => {
-        if (fileExtensions.some(ext => x.includes(ext))) {
+        if (fileExtension.test(x)) {
+            console.log('loading ' + x)
             require(x)
         }
     })
