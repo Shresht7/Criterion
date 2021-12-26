@@ -8,8 +8,9 @@
     "start": "node lib/index.js",
     "test": "npx ts-node src/index.ts",
     "dev": "tsc --watch",
-    "build": "npm run clean && tsc",
-    "clean": "npx rimraf lib"
+    "build": "tsc",
+    "clean": "npx rimraf lib",
+    "rebuild": "npm run clean && npm run build"
   },
   "author": "Shresht7",
   "license": "MIT",
