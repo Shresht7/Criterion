@@ -86,10 +86,25 @@ class Criteria {
     /** Collection of all tests in this suite */
     private tests: test[] = []
 
+    //  Setup and teardown functions
+    private _beforeAll: (() => void)[] = []
+    private _beforeEach: (() => void)[] = []
+    private _afterEach: (() => void)[] = []
+    private _afterAll: (() => void)[] = []
+
     constructor(name: string) {
         this.name = name
         this.header = compose(ansi.margin, ansi.bold, ansi.inverse, ansi.pad(3))(this.name)
     }
+
+    /** Setup function before all */
+    beforeAll = (callback: () => void) => { this._beforeAll.push(callback); return this }
+    /** Setup function before each */
+    beforeEach = (callback: () => void) => { this._beforeEach.push(callback); return this }
+    /** Teardown function after each */
+    afterEach = (callback: () => void) => { this._afterEach.push(callback); return this }
+    /** Teardown function after all */
+    afterAll = (callback: () => void) => { this._afterAll.push(callback); return this }
 
     /**
      * Register a test to this suite
@@ -112,10 +127,13 @@ class Criteria {
 
     /** Runs all tests in this suite */
     run = () => {
+        console.log(this.header)    //  Show header
 
-        console.log(this.header)
+        this._beforeAll.forEach(callback => callback()) //  Setup beforeAll
 
         this.tests.forEach(test => {
+            this._beforeEach.forEach(callback => callback())    //  Setup beforeEach
+
             //  Try to run the test
             try {
                 test.callback()
@@ -129,11 +147,14 @@ class Criteria {
                 console.error(error.stack)
                 this.failures++
             } finally {
+                this._afterEach.forEach(callback => callback())   //  Setup afterEach
                 this.total++
             }
         })
 
-        console.log(this.getResults())
+        this._afterAll.forEach(callback => callback())  //  Setup afterAll
+
+        console.log(this.getResults())  //  Show results
     }
 
     /** Returns a formatted string that shows the number of test successes, failures and total */
@@ -244,9 +265,7 @@ function main() {
     })
 
     //  Iterate over the map and run all test suites
-    for (const criteria of MAIN) {
-        criteria.run()
-    }
+    MAIN.forEach(_criteria => _criteria.run())
 }
 
 main()
