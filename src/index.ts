@@ -84,7 +84,7 @@ class Criteria {
     private total = 0
 
     /** Collection of all tests in this suite */
-    tests: test[] = []
+    private tests: test[] = []
 
     constructor(name: string) {
         this.name = name
@@ -98,13 +98,13 @@ class Criteria {
      */
     test = (name: string, callback: () => void) => { this.tests.push({ name, callback }); return this }
     /**
-     * Register a test to this suite
+     * Register a test to this suite (Alias for test)
      * @param name Test description/name
      * @param callback Callback function
      */
     spec = this.test
     /**
-     * Register a test to this suite
+     * Register a test to this suite (Alias for test)
      * @param name Test description/name
      * @param callback Callback function
      */
@@ -137,7 +137,7 @@ class Criteria {
     }
 
     /** Returns a formatted string that shows the number of test successes, failures and total */
-    getResults = () => {
+    private getResults = () => {
         let results = ''
         results += ansi.bold(this.successes.toString()) + ' '
         results += ansi.green('passed')
@@ -213,20 +213,20 @@ export function expect<T>(actual: T) {
 //  MAIN
 //  ====
 
-//  ------------------------------------
-const MAIN = new Map<string, Criteria>()
-//  ------------------------------------
+//  -----------------------
+const MAIN: Criteria[] = []
+//  -----------------------
 
 /** Register a new test suite */
 export function criteria(name: string) {
     const _criteria = new Criteria(name)
-    MAIN.set(name, _criteria)
+    MAIN.push(_criteria)
     return _criteria
 }
 
 /** File-extensions to look for tests */
 const fileExtension = /\.(test|spec)\.ts$/
-//TODO: Eliminate redundant test runs when both .ts and .js files are preset (Ignore files using .gitignore?)
+//TODO: #3 Eliminate redundant test runs when both .ts and .js files are preset (Ignore files using .gitignore?)
 // const fileExtension = /\.(test|spec)\.(js|ts)$/
 
 /** Script's Main Function */
@@ -244,7 +244,7 @@ function main() {
     })
 
     //  Iterate over the map and run all test suites
-    for (const [_, criteria] of MAIN) {
+    for (const criteria of MAIN) {
         criteria.run()
     }
 }
