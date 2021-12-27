@@ -162,7 +162,7 @@ class Criteria {
         let results = ''
         results += ansi.bold(this.successes.toString()) + ' '
         results += ansi.green('passed')
-        results += this.failures ? `(${ansi.bold(this.failures.toString())} ${ansi.red('failed')})` : ' '
+        results += this.failures ? ` (${ansi.bold(this.failures.toString())} ${ansi.red('failed')}) ` : ' '
         results += 'out of '
         results += ansi.bold(this.total.toString()) + ' '
         results += 'total'
