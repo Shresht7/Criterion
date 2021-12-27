@@ -199,6 +199,10 @@ export function expect<T>(actual: T) {
             assert.ok(typeof actual === type)
             return matchers
         },
+        toBeAnInstanceOf: <T extends Function>(className: T) => {
+            assert.ok(actual instanceof className)
+            return matchers
+        },
         toMatch: (expected: RegExp) => {
             if (typeof actual !== 'string') { assert.fail('Not a string') }
             assert.match(actual, expected)
