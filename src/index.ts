@@ -1,71 +1,10 @@
 //  Library
-import * as fs from 'fs'
 import * as path from 'path'
 import * as assert from 'assert'
+import { walkDir, ansi, compose, RESET } from './helpers'
 
 //  Type Definitions
 type test = { name: string, callback: () => void }
-
-//  ================
-//  HELPER FUNCTIONS
-//  ================
-
-//  WALK DIRECTORY
-//  ==============
-
-/**
- * Walks the provided path and executes the callback function
- * @param dir Path to directory
- * @param callback Callback function to execute for every entry
- */
-function walkDir(dir: string, callback: (x: string) => void) {
-    fs.readdirSync(dir).forEach(f => {
-        const dirPath = path.join(dir, f)
-        const isDirectory = fs.statSync(dirPath).isDirectory()
-        isDirectory
-            ? walkDir(dirPath, callback)
-            : callback(path.join(dir, f))
-    })
-}
-
-//  ANSI CODES
-//  ==========
-
-const ESC = '\u001b'
-const RESET = `${ESC}[0m`
-
-/**
- * Helper function to wrap the given string with the given ansi code tuple
- * @param str Text to wrap ANSI code around
- * @param code Tuple representing the ANSI start and end codes [start, end]
- */
-function wrap(str: string, code: [string, string]) { return `${code[0]}${str}${code[1]}` }
-
-/** ANSI Code Utilities */
-const ansi = {
-    /** Wraps the text in ANSI bold codes */
-    bold: (str: string) => wrap(str, [`${ESC}[1m`, `${ESC}[22m`]),
-    /** Wraps the text in ANSI inverse codes */
-    inverse: (str: string) => wrap(str, [`${ESC}[7m`, `${ESC}[27m`]),
-    /** Returns a curried function that inturn wraps a text in n whitespaces */
-    pad: (n: number = 1) => (str: string) => wrap(str, [' '.repeat(n), ' '.repeat(n)]),
-    /** Returns a curried function that inturn wraps a text in n newlines */
-    margin: (n: number = 1) => (str: string) => wrap(str, ['\n'.repeat(n), '\n'.repeat(n)]),
-    /** Wraps the text in ANSI green codes */
-    green: (str: string) => wrap(str, [`${ESC}[32m`, `${ESC}[39m`]),
-    /** Wraps the text in ANSI red codes */
-    red: (str: string) => wrap(str, [`${ESC}[31m`, `${ESC}[39m`]),
-}
-
-/** Function composition utility */
-function compose(...fns: Function[]) {
-    return (str: string) => fns.reduceRight((acc, currFn) => {
-        //  If currFn is a curried function (like pad and margin in this case) then pass in the default of 1 and pipe forward
-        if (typeof currFn(1) === 'function') { currFn = currFn(1) }
-        //  Return the accumulated result
-        return currFn(acc)
-    }, str)
-}
 
 //  ========
 //  CRITERIA
