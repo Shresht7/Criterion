@@ -20,7 +20,7 @@
  export const parseArguments = (...args: string[]): ParsedArguments => {
  
      //  Get arguments from process.argv if none are passed int
-     if (!args) {
+     if (!args || !args.length) {
          args = getArguments()
      }
  

@@ -1,6 +1,6 @@
 //  Library
 import Criteria from './Criteria'
-import { walkDir, ansi } from './helpers'
+import { walkDir, ansi, parseArguments } from './helpers'
 import * as path from 'path'
 
 //  Exports
@@ -28,9 +28,13 @@ const fileExtension = /\.(test|spec)\.ts$/
 
 /** Script's Main Function */
 function main() {
+
+    const args = parseArguments()
+    const dir = args.arguments[0] || process.cwd() 
+
     //  Walk over the current directory and require all test files
     const done: string[] = []
-    walkDir(process.cwd(), (x) => {
+    walkDir(dir, (x) => {
         if (fileExtension.test(x)) {
             const fileName = path.basename(x).replace(fileExtension, '')
             if (!fileName || done.includes(fileName)) { return }    //  If a test with the same fileName is already done then skip it
