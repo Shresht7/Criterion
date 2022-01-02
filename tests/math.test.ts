@@ -1,5 +1,5 @@
 //  Library
-import { criteria, expect } from '../'
+import { criteria, expect } from '../src'
 import * as assert from 'assert'
 
 //  Random functions to test

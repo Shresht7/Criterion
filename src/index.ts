@@ -29,8 +29,9 @@ const fileExtension = /\.(test|spec)\.ts$/
 /** Script's Main Function */
 function main() {
 
+    //  Parse Command-Line Arguments
     const args = parseArguments()
-    const dir = path.join(process.cwd(), args.arguments[0] || '') 
+    const dir = path.join(process.cwd(), args.arguments[0] || 'tests') 
 
     //  Walk over the current directory and require all test files
     const done: string[] = []
@@ -46,6 +47,7 @@ function main() {
 
     //  Iterate over the map and run all test suites
     MAIN.forEach(_criteria => _criteria.run())
+    
 }
 
 main()
