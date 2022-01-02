@@ -30,9 +30,12 @@ const fileExtension = /\.(test|spec)\.ts$/
 /** Script's Main Function */
 function main() {
 
+    const target = process.argv.slice(2)[0]
+    const dir = path.join(process.cwd(), target || 'tests')
+
     //  Walk over the current directory and require all test files
     const done: string[] = []
-    walkDir(process.cwd(), (x) => {
+    walkDir(dir, (x) => {
         if (fileExtension.test(x)) {
             const fileName = path.basename(x).replace(fileExtension, '')
             if (!fileName || done.includes(fileName)) { return }    //  If a test with the same fileName is already done then skip it
