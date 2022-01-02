@@ -30,7 +30,7 @@ const fileExtension = /\.(test|spec)\.ts$/
 function main() {
 
     const args = parseArguments()
-    const dir = args.arguments[0] || process.cwd() 
+    const dir = path.join(process.cwd(), args.arguments[0] || '') 
 
     //  Walk over the current directory and require all test files
     const done: string[] = []
