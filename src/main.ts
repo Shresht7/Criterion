@@ -4,9 +4,7 @@ import { walkDir, ansi, parseArguments } from './helpers'
 import * as path from 'path'
 
 /** File-extensions to look for tests */
-const fileExtension = /\.(test|spec)\.ts$/
-//TODO: #3 Eliminate redundant test runs when both .ts and .js files are preset (Ignore files using .gitignore?)
-// const fileExtension = /\.(test|spec)\.(js|ts)$/
+const fileExtension = /\.(test|spec)\.(js|ts)$/
 
 //  ====
 //  MAIN
