@@ -25,11 +25,12 @@ const stats = {
 }
 
 /** fileExtension Regex */
-const fileExtension = /\.(test|spec)\.ts$/
+const fileExtension = /\.(test|spec)\.(js|ts)$/
 
 /** Script's Main Function */
 function main() {
 
+    //  Parse Command-Line Arguments
     const target = process.argv.slice(2)[0]
     const dir = path.join(process.cwd(), target || 'tests')
 
