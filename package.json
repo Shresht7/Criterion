@@ -4,6 +4,9 @@
   "description": "A bare minimum test framework",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "start": "node lib/main.js",
     "test": "npx ts-node src/main.ts",
