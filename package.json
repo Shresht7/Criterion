@@ -1,12 +1,12 @@
 {
   "name": "criteria",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A bare minimum test framework",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "start": "node lib/index.js",
-    "test": "npx ts-node src/index.ts",
+    "start": "node lib/main.js",
+    "test": "npx ts-node src/main.ts",
     "dev": "tsc --watch",
     "build": "tsc",
     "clean": "npx rimraf lib",
