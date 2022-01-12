@@ -2,9 +2,20 @@
   "name": "criteria",
   "version": "0.1.0",
   "description": "A bare minimum test framework",
+  "author": "Shresht7",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shresht7/Criteria.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Shresht7/Criteria/issues"
+  },
+  "homepage": "https://github.com/Shresht7/Criteria",
+  "private": "true",
   "main": "lib/index.cjs",
-  "types": "lib/index.d.ts",
   "module": "lib/index.mjs",
+  "types": "lib/index.d.ts",
   "files": [
     "lib"
   ],
@@ -17,15 +28,11 @@
   "scripts": {
     "start": "node lib/main.js",
     "test": "npx ts-node src/main.ts",
-    "build": "node .esbuild.config.js && tsc",
-    "clean": "npx rimraf lib",
-    "rebuild": "npm run clean && npm run build"
-  },
-  "author": "Shresht7",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Shresht7/Criteria.git"
+    "build": "npm run build:esbuild && npm run build:tsc",
+    "build:tsc": "tsc",
+    "build:esbuild": "node .esbuild.config.js",
+    "build:clean": "npm run clean && npm run build",
+    "clean": "npx rimraf lib"
   },
   "devDependencies": {
     "@types/node": "^17.0.4",
