@@ -25,6 +25,9 @@
       "import": "./lib/index.mjs"
     }
   },
+  "bin": {
+    "criteria": "./bin/criteria.js"
+  },
   "scripts": {
     "start": "node lib/main.js",
     "test": "npx ts-node src/main.ts",
