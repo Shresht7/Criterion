@@ -1,7 +1,9 @@
 //  ESBuild
+// import esbuild from 'esbuild'
 const esbuild = require('esbuild')
 
 //  Exclude all node_modules from the bundled version
+// import { nodeExternalsPlugin } from 'esbuild-node-externals'
 const { nodeExternalsPlugin } = require('esbuild-node-externals')
 
 /**
@@ -41,11 +43,12 @@ const mjsConfig = {
 /**
  * @type esbuild.BuildOptions
  */
-const runnerConfig = {
+const cliConfig = {
     ...config,
-    entryPoints: ['./src/main.ts'],
-    outfile: 'lib/main.js'
+    entryPoints: ['./src/cli.ts'],
+    outfile: 'bin/criteria.js',
 }
+
 
 //  =======
 //  ESBUILD
@@ -58,6 +61,6 @@ async function build(configs) {
     return Promise.all(configs.map(config => esbuild.build(config)))
 }
 
-build([cjsConfig, mjsConfig, runnerConfig])
+build([cjsConfig, mjsConfig, cliConfig])
     .then(() => console.log('✅ Build Successful'))
     .catch(err => { throw err })

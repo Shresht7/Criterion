@@ -35,7 +35,7 @@
     "build:tsc": "tsc",
     "build:esbuild": "node .esbuild.config.js",
     "build:clean": "npm run clean && npm run build",
-    "clean": "npx rimraf lib"
+    "clean": "npx rimraf lib bin"
   },
   "devDependencies": {
     "@types/node": "^17.0.4",
