@@ -1,4 +1,101 @@
-var $=Object.create;var u=Object.defineProperty;var x=Object.getOwnPropertyDescriptor;var b=Object.getOwnPropertyNames;var w=Object.getPrototypeOf,A=Object.prototype.hasOwnProperty;var v=t=>u(t,"__esModule",{value:!0});var k=(t,e,n,r)=>{if(e&&typeof e=="object"||typeof e=="function")for(let i of b(e))!A.call(t,i)&&(n||i!=="default")&&u(t,i,{get:()=>e[i],enumerable:!(r=x(e,i))||r.enumerable});return t},f=(t,e)=>k(v(u(t!=null?$(w(t)):{},"default",!e&&t&&t.__esModule?{get:()=>t.default,enumerable:!0}:{value:t,enumerable:!0})),t);var m=f(require("fs")),c=f(require("path"));function l(t,e){m.readdirSync(t).forEach(n=>{let r=c.join(t,n);m.statSync(r).isDirectory()?l(r,e):e(c.join(t,n))})}var o="",S=`${o}[0m`;function a(t,e){return`${e[0]}${t}${e[1]}`}var g={bold:t=>a(t,[`${o}[1m`,`${o}[22m`]),inverse:t=>a(t,[`${o}[7m`,`${o}[27m`]),pad:(t=1)=>e=>a(e,[" ".repeat(t)," ".repeat(t)]),margin:(t=1)=>e=>a(e,[`
-`.repeat(t),`
-`.repeat(t)]),green:t=>a(t,[`${o}[32m`,`${o}[39m`]),red:t=>a(t,[`${o}[31m`,`${o}[39m`])};var D=()=>process.argv.slice(2),h=(...t)=>{(!t||!t.length)&&(t=D()),t.length===1&&Array.isArray(t[0])&&(t=t[0]);let e={arguments:[],flags:{}};for(let n=0;n<t.length;n++)if(t[n].startsWith("-")||e.arguments.push(t[n]),t[n].startsWith("--")){let r=t[n].substring(2).match(/^([\w\-]+)=?(\w*)$/im);if(!r)continue;let[,i,s]=r;!s&&t.length>n+1&&!t[n+1].startsWith("-")&&(s=t[n+1],n=n+1),s=s||!0,e.flags[i]=s}else if(t[n].startsWith("-")){let r=t[n].substring(1).match(/([\w\-]{1})=?(\w*)/im);if(!r)continue;let[,i,s]=r;!s&&t.length>n+1&&!t[n+1].startsWith("-")&&(s=t[n+1],n=n+1),s=s||!0,e.flags[i]=s}return e};var p=f(require("path")),d=/\.(test|spec)\.(js|ts)$/,E=h(),W=p.join(process.cwd(),E.arguments[0]||"tests"),y=[];l(W,t=>{if(d.test(t)){let e=p.basename(t).replace(d,"");if(!e||y.includes(e))return;y.push(e),console.log("loading: "+t.replace(e,g.bold(e))),require(t)}});
+var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+  get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
+}) : x)(function(x) {
+  if (typeof require !== "undefined")
+    return require.apply(this, arguments);
+  throw Error('Dynamic require of "' + x + '" is not supported');
+});
+
+// src/helpers/walkDir.ts
+import * as fs from "fs";
+import * as path from "path";
+function walkDir(dir2, callback) {
+  fs.readdirSync(dir2).forEach((f) => {
+    const dirPath = path.join(dir2, f);
+    const isDirectory = fs.statSync(dirPath).isDirectory();
+    isDirectory ? walkDir(dirPath, callback) : callback(path.join(dir2, f));
+  });
+}
+
+// src/helpers/ansi.ts
+var ESC = "\x1B";
+var RESET = `${ESC}[0m`;
+function wrap(str, code) {
+  return `${code[0]}${str}${code[1]}`;
+}
+var ansi = {
+  /** Wraps the text in ANSI bold codes */
+  bold: (str) => wrap(str, [`${ESC}[1m`, `${ESC}[22m`]),
+  /** Wraps the text in ANSI inverse codes */
+  inverse: (str) => wrap(str, [`${ESC}[7m`, `${ESC}[27m`]),
+  /** Returns a curried function that inturn wraps a text in n whitespaces */
+  pad: (n = 1) => (str) => wrap(str, [" ".repeat(n), " ".repeat(n)]),
+  /** Returns a curried function that inturn wraps a text in n newlines */
+  margin: (n = 1) => (str) => wrap(str, ["\n".repeat(n), "\n".repeat(n)]),
+  /** Wraps the text in ANSI green codes */
+  green: (str) => wrap(str, [`${ESC}[32m`, `${ESC}[39m`]),
+  /** Wraps the text in ANSI red codes */
+  red: (str) => wrap(str, [`${ESC}[31m`, `${ESC}[39m`])
+};
+
+// src/helpers/args.ts
+var getArguments = () => process.argv.slice(2);
+var parseArguments = (...args2) => {
+  if (!args2 || !args2.length) {
+    args2 = getArguments();
+  }
+  if (args2.length === 1 && Array.isArray(args2[0])) {
+    args2 = args2[0];
+  }
+  const result = { arguments: [], flags: {} };
+  for (let i = 0; i < args2.length; i++) {
+    if (!args2[i].startsWith("-")) {
+      result.arguments.push(args2[i]);
+    }
+    if (args2[i].startsWith("--")) {
+      let match = args2[i].substring(2).match(/^([\w\-]+)=?(\w*)$/im);
+      if (!match) {
+        continue;
+      }
+      let [, key, value] = match;
+      if (!value && args2.length > i + 1 && !args2[i + 1].startsWith("-")) {
+        value = args2[i + 1];
+        i = i + 1;
+      }
+      value = value || true;
+      result.flags[key] = value;
+    } else if (args2[i].startsWith("-")) {
+      let match = args2[i].substring(1).match(/([\w\-]{1})=?(\w*)/im);
+      if (!match) {
+        continue;
+      }
+      let [, key, value] = match;
+      if (!value && args2.length > i + 1 && !args2[i + 1].startsWith("-")) {
+        value = args2[i + 1];
+        i = i + 1;
+      }
+      value = value || true;
+      result.flags[key] = value;
+    }
+  }
+  return result;
+};
+
+// src/cli.ts
+import * as path2 from "path";
+var fileExtension = /\.(test|spec)\.(js|ts)$/;
+var args = parseArguments();
+var dir = path2.join(process.cwd(), args.arguments[0] || "tests");
+var done = [];
+walkDir(dir, (x) => {
+  if (fileExtension.test(x)) {
+    const fileName = path2.basename(x).replace(fileExtension, "");
+    if (!fileName || done.includes(fileName)) {
+      return;
+    }
+    done.push(fileName);
+    console.log("loading: " + x.replace(fileName, ansi.bold(fileName)));
+    __require(x);
+  }
+});
 //# sourceMappingURL=criteria.js.map

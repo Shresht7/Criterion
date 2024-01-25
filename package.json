@@ -31,11 +31,8 @@
   "scripts": {
     "start": "node lib/main.js",
     "test": "npx ts-node src/main.ts",
-    "build": "npm run build:esbuild && npm run build:tsc",
-    "build:tsc": "tsc",
-    "build:esbuild": "node .esbuild.config.js",
-    "build:clean": "npm run clean && npm run build",
-    "clean": "npx rimraf lib bin"
+    "dev": "node esbuild.mjs",
+    "build": "node esbuild.mjs --production"
   },
   "devDependencies": {
     "@types/node": "^20.11.6",
