@@ -11,20 +11,13 @@
   "bugs": {
     "url": "https://github.com/Shresht7/Criteria/issues"
   },
-  "homepage": "https://github.com/Shresht7/Criteria",
-  "private": "true",
+  "homepage": "https://github.com/Shresht7/Criteria#README",
   "main": "lib/index.cjs",
   "module": "lib/index.mjs",
   "types": "lib/index.d.ts",
   "files": [
     "lib"
   ],
-  "exports": {
-    ".": {
-      "require": "./lib/index.cjs",
-      "import": "./lib/index.mjs"
-    }
-  },
   "bin": {
     "criteria": "./bin/criteria.js"
   },
